@@ -20,13 +20,14 @@ Just use docker compose:
 services:
   simplecut:
     container_name: simplecut
-    image: ghcr.io/XtracT/simplecut:latest
+    image: ghcr.io/xtract/simplecut:latest
     ports:
       - "5000:5000"
     volumes:
       - /path/to/your/music:/music
     restart: unless-stopped
 ```
+Change port and path to your music to something that works for you. 
 
 Run it:
 ```bash
