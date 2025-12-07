@@ -400,13 +400,13 @@ def get_library_structure():
     cleanup_orphans()
     
     tree = {}
-    for root, dirs, files in os.walk(MUSIC_DIR):
+    for root, dirs, files in os.walk(MUSIC_DIR, followlinks=True):
         rel_folder = os.path.relpath(root, MUSIC_DIR)
         if rel_folder == ".": rel_folder = "Root"
-        files.sort()
+        files.sort(key=lambda s: s.lower())
         mp3s = [f for f in files if f.lower().endswith('.mp3') and not 'temp_' in f]
         if mp3s: tree[rel_folder] = mp3s
-    return dict(sorted(tree.items()))
+    return dict(sorted(tree.items(), key=lambda item: item[0].lower()))
 
 @app.route('/')
 def index(): return render_template_string(HTML_TEMPLATE)
