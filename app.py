@@ -488,16 +488,16 @@ def replace_file():
                 '-i', original_path,
                 '-map', '0:a',
                 '-map_metadata', '1',
-                '-map', '1:v?',
-                '-c:v', 'copy',   # Copy album art if exists
             ]
 
             # Codec Selection based on extension
             if ext == '.opus':
+                # Opus container (Ogg) usually doesn't support video streams for art in this way
                 cmd.extend(['-c:a', 'libopus', '-b:a', '128k'])
             else:
                 # Default to MP3/LAME for .mp3 or others
-                cmd.extend(['-c:a', 'libmp3lame', '-b:a', '256k', '-id3v2_version', '3'])
+                # Copy album art if exists (treated as video stream in MP3)
+                cmd.extend(['-map', '1:v?', '-c:v', 'copy', '-c:a', 'libmp3lame', '-b:a', '256k', '-id3v2_version', '3'])
 
             cmd.append(temp_out_path)
 
