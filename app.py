@@ -404,8 +404,9 @@ def get_library_structure():
         rel_folder = os.path.relpath(root, MUSIC_DIR)
         if rel_folder == ".": rel_folder = "Root"
         files.sort(key=lambda s: s.lower())
-        mp3s = [f for f in files if f.lower().endswith('.mp3') and not 'temp_' in f]
-        if mp3s: tree[rel_folder] = mp3s
+        # Support MP3 and OPUS
+        audio_files = [f for f in files if (f.lower().endswith('.mp3') or f.lower().endswith('.opus')) and not 'temp_' in f]
+        if audio_files: tree[rel_folder] = audio_files
     return dict(sorted(tree.items(), key=lambda item: item[0].lower()))
 
 @app.route('/')
@@ -472,29 +473,38 @@ def replace_file():
     original_path = os.path.join(MUSIC_DIR, original_rel)
     cut_wav_path = os.path.join(MUSIC_DIR, cut_wav_rel)
     
+    base_name, ext = os.path.splitext(original_path)
+    ext = ext.lower()
+    
     temp_id = uuid.uuid4().hex
-    temp_mp3_path = os.path.join(MUSIC_DIR, f"temp_{temp_id}.mp3")
+    temp_out_path = os.path.join(MUSIC_DIR, f"temp_{temp_id}{ext}")
     
     try:
         if os.path.exists(cut_wav_path):
             # MERGE: Cut Audio + Original Metadata
             cmd = [
                 'ffmpeg', '-y',
-                '-i', cut_wav_path,        
-                '-i', original_path,       
-                '-map', '0:a',             
-                '-map_metadata', '1',      
-                '-map', '1:v?',            
-                '-c:v', 'copy',            
-                '-c:a', 'libmp3lame',      
-                '-b:a', '256k',
-                '-id3v2_version', '3',
-                temp_mp3_path
+                '-i', cut_wav_path,
+                '-i', original_path,
+                '-map', '0:a',
+                '-map_metadata', '1',
+                '-map', '1:v?',
+                '-c:v', 'copy',   # Copy album art if exists
             ]
+
+            # Codec Selection based on extension
+            if ext == '.opus':
+                cmd.extend(['-c:a', 'libopus', '-b:a', '128k'])
+            else:
+                # Default to MP3/LAME for .mp3 or others
+                cmd.extend(['-c:a', 'libmp3lame', '-b:a', '256k', '-id3v2_version', '3'])
+
+            cmd.append(temp_out_path)
+
             subprocess.run(cmd, check=True, stderr=subprocess.PIPE)
             
             os.remove(original_path)
-            os.rename(temp_mp3_path, original_path)
+            os.rename(temp_out_path, original_path)
             
             # Cleanup
             os.remove(cut_wav_path)
@@ -506,7 +516,7 @@ def replace_file():
         else:
             return jsonify({"success": False, "message": "Cut file missing"})
     except Exception as e:
-        if os.path.exists(temp_mp3_path): os.remove(temp_mp3_path)
+        if os.path.exists(temp_out_path): os.remove(temp_out_path)
         return jsonify({"success": False, "message": str(e)})
 
 @app.route('/delete', methods=['POST'])
