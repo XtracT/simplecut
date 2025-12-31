@@ -10,6 +10,7 @@ arch:
 map:
   - media:rw
 ingress: true
+ingress_port: 5000
 panel_icon: "mdi:scissors-cutting"
 options: {}
 schema: {}
