@@ -6,7 +6,7 @@ from flask import Flask, render_template_string, request, send_from_directory, j
 app = Flask(__name__)
 
 # CONFIGURATION
-MUSIC_DIR = '/music'
+MUSIC_DIR = '/media'
 
 # HTML TEMPLATE
 HTML_TEMPLATE = """
@@ -188,7 +188,7 @@ HTML_TEMPLATE = """
             const currentFile = fileSelect.value;
 
             try {
-                const response = await fetch('/scan');
+                const response = await fetch('scan');
                 fileData = await response.json();
                 
                 folderSelect.innerHTML = '<option value="" disabled selected>Select Folder...</option>';
@@ -231,7 +231,7 @@ HTML_TEMPLATE = """
         async function loadTrack() {
             // 1. CLEANUP PREVIOUS PROXY IF EXISTS
             if (activeProxyFile) {
-                fetch('/delete', {
+                fetch('delete', {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ proxy: activeProxyFile }) 
                 });
@@ -250,7 +250,7 @@ HTML_TEMPLATE = """
             document.getElementById('loading-msg').innerText = "Loading & Sanitizing...";
 
             try {
-                const res = await fetch('/prepare', {
+                const res = await fetch('prepare', {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ filename: fullPath })
                 });
@@ -258,7 +258,7 @@ HTML_TEMPLATE = """
 
                 if (json.success) {
                     activeProxyFile = json.proxy_filename;
-                    player.src = "/stream/" + encodeURIComponent(activeProxyFile) + "?t=" + Date.now();
+                    player.src = "stream/" + encodeURIComponent(activeProxyFile) + "?t=" + Date.now();
                     document.getElementById('edit-mode-label').innerText = "Editing: " + file;
                     document.getElementById('edit-mode-label').style.color = "#333";
                 } else {
@@ -310,7 +310,7 @@ HTML_TEMPLATE = """
             document.getElementById('loading-msg').innerText = "Cutting...";
 
             try {
-                const response = await fetch('/cut', {
+                const response = await fetch('cut', {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ proxy: activeProxyFile, start: start, end: end })
                 });
@@ -318,7 +318,7 @@ HTML_TEMPLATE = """
                 
                 if (result.success) {
                     activeCutFile = result.cut_filename;
-                    previewPlayer.src = "/stream/" + encodeURIComponent(activeCutFile) + "?t=" + Date.now();
+                    previewPlayer.src = "stream/" + encodeURIComponent(activeCutFile) + "?t=" + Date.now();
                     previewZone.style.display = 'block';
                     previewPlayer.play(); 
                 } else {
@@ -336,7 +336,7 @@ HTML_TEMPLATE = """
             document.getElementById('loading-msg').innerText = "Saving...";
 
             try {
-                const response = await fetch('/replace', {
+                const response = await fetch('replace', {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ original: originalMp3File, cut_wav: activeCutFile, proxy: activeProxyFile })
                 });
@@ -361,7 +361,7 @@ HTML_TEMPLATE = """
             if (!confirm("Delete this file?")) return;
 
             try {
-                const res = await fetch('/delete', {
+                const res = await fetch('delete', {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ filename: originalMp3File, proxy: activeProxyFile })
                 });

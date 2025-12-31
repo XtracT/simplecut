@@ -13,6 +13,14 @@ I needed a simple way to trim the start and end of MP3 files directly on my NAS 
 
 ## Installation
 
+### Home Assistant Add-on
+1. Go to **Settings > Add-ons > Add-on Store**.
+2. Click the **3 dots** (top right) > **Repositories**.
+3. Add the URL of this repository.
+4. Refresh and install **SimpleCut**.
+5. Start the add-on and open the Web UI from the sidebar.
+
+### Docker Standalone
 Just use docker compose: 
 
 **docker-compose.yml**
@@ -24,7 +32,7 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - /path/to/your/music:/music
+      - /path/to/your/music:/media
     restart: unless-stopped
 ```
 Change port and path to your music to something that works for you. 

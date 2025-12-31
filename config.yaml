@@ -1,0 +1,15 @@
+name: "SimpleCut"
+description: "A simple, vibe-coded audio trimmer for your media folder."
+version: "1.0.0"
+slug: "simplecut"
+init: false
+arch:
+  - aarch64
+  - amd64
+  - armv7
+map:
+  - media:rw
+ingress: true
+panel_icon: "mdi:scissors-cutting"
+options: {}
+schema: {}

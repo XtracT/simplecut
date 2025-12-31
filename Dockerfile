@@ -12,5 +12,12 @@ RUN pip install --no-cache-dir flask
 # Copy Application
 COPY app.py .
 
+# Home Assistant Labels
+LABEL \
+    io.hass.name="SimpleCut" \
+    io.hass.description="Simple audio cutter for Home Assistant" \
+    io.hass.type="addon" \
+    io.hass.version="1.0.0"
+
 # Run
 CMD ["python", "app.py"]
